@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Venmo Tip Link Generator</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Jost', sans-serif; 
+            font-weight: 900; 
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+            background-color: #F89820; /* ZZ Orange background */
+            color: #4A2911; /* Dark Brown text */
+        }
+        #logo {
+            max-width: 150px; 
+            height: auto;
+        }
+        h1 {
+            color: #4A2911; 
+            margin-bottom: 5px;
+        }
+        h3 {
+            color: #4A2911;
+            font-size: 1em;
+            font-weight: 700;
+            margin: 5px 0 15px 0;
+        }
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: 900; 
+            color: #4A2911; 
+        }
+        /* Style for Select and Input fields */
+        select, input[type="number"] {
+            font-family: 'Jost', sans-serif; 
+            font-weight: 700; 
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            border: 1px solid #A0522D; 
+            border-radius: 4px;
+            background-color: #FFFAF0; /* Off-white for input fields */
+            color: #4A2911; 
+        }
+
+        /* Styles for Tip Buttons Container */
+        #tip-buttons-container {
+            display: flex; 
+            justify-content: space-between; 
+            gap: 5px; 
+            margin-bottom: 15px;
+        }
+
+        /* Styles for individual Tip Buttons */
+        .tip-button {
+            flex-grow: 1;
+            padding: 10px 0;
+            font-family: 'Jost', sans-serif;
+            font-weight: 900;
+            background-color: #A0522D; 
+            color: white;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .tip-button:hover {
+            background-color: #8B4513; 
+        }
+        
+        /* Style for the Payment Summary */
+        #summary {
+            text-align: left;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 2px solid #A0522D;
+            border-radius: 4px;
+            background-color: #FFFAF0;
+            font-weight: 700;
+            font-size: 0.95em;
+        }
+        #summary p {
+            margin: 5px 0;
+        }
+        .total-row {
+            font-size: 1.2em;
+            color: #4A2911;
+            font-weight: 900;
+            border-top: 1px dashed #A0522D;
+            padding-top: 5px;
+            margin-top: 10px;
+        }
+        
+        .math-detail {
+            font-style: italic;
+            font-weight: 500;
+            color: #8B4513;
+        }
+
+        /* Styles for the Venmo Link (now the dynamic button) */
+        #venmoLink {
+            /* Now an actual button element */
+            display: block; 
+            text-decoration: none;
+            padding: 15px;
+            background-color: #008CFF; 
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            margin-top: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: 'Jost', sans-serif;
+            font-weight: 900;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        #venmoLink:hover {
+            background-color: #333333; 
+        }
+        
+        /* NEW: Grayed-out style for disabled state */
+        #venmoLink:disabled, #venmoLink.disabled {
+            background-color: #CCCCCC; 
+            color: #666666;
+            cursor: not-allowed;
+            pointer-events: none; /* Crucial for preventing clicks */
+        }
+        
+        #errorMessage {
+            color: #800000; 
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body onload="setInitialTip()"> 
+
+    
+<img id="logo" src="https://cdn.prod.website-files.com/668c5a6adf549a19e029ece0/66cbd06ad2506cc5e08db465_Group%2018.png" alt="ZiggyZooms"> 
+    
+    <h1>Thanks for riding with ZiggyZooms! </h1>
+    <h3>If you're paying with Venmo, please fill out the form below. </h3> 
+    <h3> Paying with card or tap to pay? Please pay with your driver. </h3>
+    
+    <label for="driverSelect">Select Your Driver:</label>
+    <select id="driverSelect" onchange="generateVenmoURL()">
+        <option value="" disabled selected>-- CHOOSE A DRIVER --</option>
+        <option value="Cam">Cam</option>
+        <option value="Nick">Nick</option>
+        <option value="Nate">Nate</option>
+        <option value="Jack">Jack</option>
+    </select>
+    
+    <label for="peopleCount">How many people are you paying for? ($7.00 per rider):</label>
+    <input type="number" id="peopleCount" min="1" placeholder="E.G., 2" required oninput="generateVenmoURL()">
+    
+    <label for="tipAmount">Leave a tip for the driver (optional):</label>
+    
+    <div id="tip-buttons-container">
+        <button class="tip-button" onclick="setTipAmountAndUpdate(0)">NO TIP</button>
+        <button class="tip-button" onclick="setTipAmountAndUpdate(1)">$1</button>
+        <button class="tip-button" onclick="setTipAmountAndUpdate(2)">$2</button>
+        <button class="tip-button" onclick="setTipAmountAndUpdate(3)">$3</button>
+    </div>
+    
+<input type="number" id="tipAmount" step="0.01" min="0.00" placeholder="Or custom tip..." required oninput="generateVenmoURL()">    
+    
+    <div id="summary">
+        <p>Ride Base Charge: <span id="summary-base">$0.00</span> <span class="math-detail">(7.00 x <span id="summary-people">0</span> riders)</span></p>
+        <p>Sales Tax (6.75%): <span id="summary-tax">$0.00</span></p>
+        <p>Subtotal: <span id="summary-subtotal">$0.00</span> <span class="math-detail">(Base + Tax)</span></p>
+        <p>Tip: <span id="summary-tip">$0.00</span></p>
+        <p class="total-row">TOTAL PAYMENT: <span id="summary-total">$0.00</span> <span class="math-detail">(Subtotal + Tip)</span></p>
+    </div>
+    
+    <p id="errorMessage"></p>
+    
+    <button id="venmoLink" onclick="redirectToVenmo()" disabled>Input driver and number of people</button>
+
+	<p id="confirmation-instruction">
+        Please do not edit the generated payment note. Show your confirmation screen to the driver once you have paid for the ride.
+    </p>
+
+    <script>
+        // --- CONSTANTS ---
+        const VENMO_RECIPIENT = 'ZiggyZooms'; 
+        const COST_PER_PERSON = 7.00;
+        const OH_SALES_TAX_RATE = 0.0675; // 6.75%
+        
+        // --- INITIALIZATION ---
+        function setInitialTip() {
+            generateVenmoURL(); // Initialize the summary and check button state
+        }
+        
+        // --- TIP HANDLERS ---
+        function setTipAmount(amount) {
+            document.getElementById('tipAmount').value = amount.toFixed(2);
+        }
+
+        function setTipAmountAndUpdate(amount) {
+            setTipAmount(amount);
+            generateVenmoURL();
+            document.getElementById('tipAmount').focus(); 
+        }
+
+        // --- CORE CALCULATION & DISPLAY ---
+        function updateSummary() {
+            const peopleCountInput = document.getElementById('peopleCount').value;
+            const tipInput = document.getElementById('tipAmount').value;
+
+            const people = parseInt(peopleCountInput) || 0;
+            const tip = parseFloat(tipInput) || 0; 
+
+            // 1. Base Charge (7 x riders)
+            const baseCharge = people * COST_PER_PERSON;
+            
+            // 2. Calculate Tax
+            const tax = baseCharge * OH_SALES_TAX_RATE;
+            
+            // 3. Subtotal (Base + Tax)
+            const subtotal = baseCharge + tax;
+
+            // 4. Final Total (Subtotal + Tip)
+            const totalAmount = baseCharge + tax + tip;
+
+            // Update the display summary
+            document.getElementById('summary-people').textContent = people;
+            document.getElementById('summary-base').textContent = `$${baseCharge.toFixed(2)}`;
+            document.getElementById('summary-tax').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('summary-subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('summary-tip').textContent = `$${tip.toFixed(2)}`;
+            document.getElementById('summary-total').textContent = `$${totalAmount.toFixed(2)}`;
+            
+            // Return the calculated total and key inputs for validation
+            return { totalAmount: totalAmount, people: people };
+        }
+
+        // --- FINAL LINK GENERATION (Called in real-time) ---
+        function generateVenmoURL() {
+            const { totalAmount, people } = updateSummary(); 
+            
+            const driverSelectElement = document.getElementById('driverSelect');
+            const driverName = driverSelectElement.options[driverSelectElement.selectedIndex].text;
+            const driverUsername = driverSelectElement.value;
+            
+            const venmoLinkElement = document.getElementById('venmoLink');
+            const errorElement = document.getElementById('errorMessage');
+
+            // Determine if inputs are valid
+            const driverSelected = driverUsername !== '';
+            const inputsValid = driverSelected && people > 0 && totalAmount > 0;
+            
+            errorElement.textContent = ''; // Clear error message
+
+            if (inputsValid) {
+                // --- A) Inputs Valid: Enable Button and Create URL ---
+                
+                // Get current date and time for the note
+                const now = new Date();
+const dateTimeString = now.toLocaleDateString() + ' ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+                // Construct the transaction note
+                const noteText = `Ride for ${people} with ${driverName} at ${dateTimeString}`;
+                const encodedNote = encodeURIComponent(noteText);
+                const formattedTotalAmount = totalAmount.toFixed(2);
+
+                // Build the final Venmo URL (stored in a data attribute)
+                const venmoURL = `https://venmo.com/${VENMO_RECIPIENT}?txn=pay&amount=${formattedTotalAmount}&note=${encodedNote}`;
+                
+                // Store the URL and update button text
+                venmoLinkElement.setAttribute('data-venmo-url', venmoURL);
+                venmoLinkElement.textContent = `CLICK TO PAY $${formattedTotalAmount} ON VENMO`;
+                
+                // Enable the button
+                venmoLinkElement.disabled = false;
+
+            } else {
+                // --- B) Inputs Invalid: Disable Button and Show Tip ---
+                
+                venmoLinkElement.textContent = `CLICK TO PAY`;
+                venmoLinkElement.disabled = true;
+                venmoLinkElement.removeAttribute('data-venmo-url'); // Clear old URL
+
+                if (!driverSelected) {
+                    errorElement.textContent = 'Please select a driver';
+                }
+                else if (people <= 0) {
+                    errorElement.textContent = 'Please enter the number of people';
+                }
+            }
+        }
+
+        // --- Redirect Function (Called when the button is clicked) ---
+        function redirectToVenmo() {
+            const venmoLinkElement = document.getElementById('venmoLink');
+            const url = venmoLinkElement.getAttribute('data-venmo-url');
+            
+            if (url) {
+                // Open the generated URL in a new window/tab
+                window.open(url, '_blank');
+            } else {
+                // Should not happen if button is properly disabled, but a fallback
+                document.getElementById('errorMessage').textContent = 'Error: Payment link could not be generated. Please check inputs.';
+            }
+        }
+    </script>
+</body>
+</html>
