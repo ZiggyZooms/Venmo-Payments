@@ -152,7 +152,7 @@
 <img id="logo" src="https://cdn.prod.website-files.com/668c5a6adf549a19e029ece0/66cbd06ad2506cc5e08db465_Group%2018.png" alt="ZiggyZooms"> 
     
     <h1>Thanks for riding with ZiggyZooms! </h1>
-    <h3>If you're paying with Venmo, please fill out the form below. </h3> 
+    <h3>If you're paying with Venmo, please fill out the form below. Keep the Venmo payment confirmation open until your driver approves it.</h3> 
     <h3> Paying with card or tap to pay? Please pay with your driver. </h3>
     
     <label for="driverSelect">Select Your Driver:</label>
@@ -191,7 +191,7 @@
     <button id="venmoLink" onclick="redirectToVenmo()" disabled>Input driver and number of people</button>
 
 	<p id="confirmation-instruction">
-        Please do not edit the generated payment note. Show your confirmation screen to the driver once you have paid for the ride.
+        Please do not edit the generated payment note. Stay on the payment confirmation screen, and show it to your driver when they are safely stopped.
     </p>
 
     <script>
@@ -272,7 +272,7 @@
                 const now = new Date();
 const dateTimeString = now.toLocaleDateString() + ' ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
                 // Construct the transaction note
-                const noteText = `Ride for ${people} with ${driverName} at ${dateTimeString}`;
+                const noteText = `Ride paid for ${people} people with ${driverName} at ${dateTimeString}`;
 				const encodedNote = encodeURIComponent(noteText).replace(/%20/g, '+');
                 const formattedTotalAmount = totalAmount.toFixed(2);
 
