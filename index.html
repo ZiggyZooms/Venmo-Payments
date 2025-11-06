@@ -277,7 +277,8 @@ const dateTimeString = now.toLocaleDateString() + ' ' + now.toLocaleTimeString('
                 const formattedTotalAmount = totalAmount.toFixed(2);
 
                 // Build the final Venmo URL (stored in a data attribute)
-                const venmoURL = `https://venmo.com/${VENMO_RECIPIENT}?txn=pay&amount=${formattedTotalAmount}&note=${encodedNote}`;
+                // const venmoURL = `https://venmo.com/${VENMO_RECIPIENT}?txn=pay&amount=${formattedTotalAmount}&note=${encodedNote}`;
+				const venmoURL = `https://venmo.com/?txn=pay&recipients=${VENMO_RECIPIENT}&amount=${formattedTotalAmount}&note=${encodedNote}`;
                 
                 // Store the URL and update button text
                 venmoLinkElement.setAttribute('data-venmo-url', venmoURL);
