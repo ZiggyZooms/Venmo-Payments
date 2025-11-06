@@ -273,7 +273,7 @@
 const dateTimeString = now.toLocaleDateString() + ' ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
                 // Construct the transaction note
                 const noteText = `Ride for ${people} with ${driverName} at ${dateTimeString}`;
-                const encodedNote = encodeURIComponent(noteText);
+				const encodedNote = encodeURIComponent(noteText).replace(/%20/g, '+');
                 const formattedTotalAmount = totalAmount.toFixed(2);
 
                 // Build the final Venmo URL (stored in a data attribute)
