@@ -304,18 +304,37 @@ const dateTimeString = now.toLocaleDateString() + ' ' + now.toLocaleTimeString('
         }
 
         // --- Redirect Function (Called when the button is clicked) ---
-        function redirectToVenmo() {
-            const venmoLinkElement = document.getElementById('venmoLink');
-            const url = venmoLinkElement.getAttribute('data-venmo-url');
-            
-            if (url) {
-                // Open the generated URL in a new window/tab
-                window.open(url, '_blank');
-            } else {
-                // Should not happen if button is properly disabled, but a fallback
-                document.getElementById('errorMessage').textContent = 'Error: Payment link could not be generated. Please check inputs.';
-            }
-        }
+       // --- Redirect Function (Called when the button is clicked) ---
+function redirectToVenmo() {
+    const venmoLinkElement = document.getElementById('venmoLink');
+    const httpUrl = venmoLinkElement.getAttribute('data-venmo-url'); // e.g., https://venmo.com/ZiggyZooms...
+    
+    if (httpUrl) {
+        // 1. Convert the HTTPS URL to a VENMO Deep Link URL
+        // Example: venmo://paycharge?txn=pay&recipients=ZiggyZooms&amount=10.00&note=...
+        
+        // Parse the parameters from the generated httpUrl
+        const urlParams = new URLSearchParams(httpUrl.split('?')[1]);
+        
+        const amount = urlParams.get('amount');
+        const note = urlParams.get('note');
+        
+        // This is the highly-effective deep link format
+        const deepLinkUrl = `venmo://paycharge?txn=pay&recipients=${VENMO_RECIPIENT}&amount=${amount}&note=${note}`;
+        
+        // 2. Attempt to open the deep link
+        window.location.href = deepLinkUrl;
+
+        // 3. Set a fallback to the universal web link (in case the app isn't installed)
+        setTimeout(() => {
+            // If the app didn't open within 500ms, fall back to the universal web link.
+            window.open(httpUrl, '_blank');
+        }, 500);
+        
+    } else {
+        document.getElementById('errorMessage').textContent = 'Error: Payment link could not be generated. Please check inputs.';
+    }
+}
     </script>
 </body>
 </html>
